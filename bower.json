@@ -1,0 +1,11 @@
+{
+  "name": "typeahead",
+  "version": "0.0.1",
+  "dependencies": {
+    "backbone.marionette": "*",
+    "underscore": "*",
+    "requirejs": "*",
+    "requirejs-text": "*"
+  }
+}
+
