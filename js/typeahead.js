@@ -1,9 +1,9 @@
 /*global define*/
 define([
     "marionette",
-    "text!templates/optiontemplate.html",
-    "text!templates/typeahead.html"
-], function (Marionette, OptionTemplate, TypeaHead) {
+    "text!templates/typeahead.html",
+    "text!templates/optiontemplate.html"
+], function (Marionette, TypeaHeadTemplate, OptionTemplate) {
     "use strict";
     /* crea nueva instancia de la app */
     var tpApp = new Backbone.Marionette.Application();
@@ -70,12 +70,17 @@ define([
             className: "typeahead",
 
             /* indica template del layout */
-            template: _.template(TypeaHead),
+            template: _.template(TypeaHeadTemplate),
 
             /* indica regiones del layout */
             regions: {
                 searchbox: ".searchbox",
                 optionbox: ".optionbox"
+            },
+
+            events: {
+                'focusin .searchbox input': 'toggleMglass',
+                'focusout .searchbox input': 'cleanInput'
             },
 
             /* lo que se ejecuta antes que se muestre la vista */
@@ -108,6 +113,37 @@ define([
             /* se ejecuta despues que se muestra la vista */
             onShow: function(){
                 console.log('TpAppLayoutView: onShow');
+                this.setDimentionSearchBox();
+            },
+
+            setDimentionSearchBox: function(){
+
+                var heightContainer = TpApp.container.$el.height();
+                $(this.regions.searchbox).find("input").css({
+                    "height": heightContainer,
+                });
+                $(this.regions.optionbox).css({
+                    "top": heightContainer,
+                });
+            },
+
+            toggleMglass: function(){
+                if( $(this.regions.searchbox).find("input").val() != "" ){
+                    // $(this.regions.searchbox).find("input").addClass("mglass");
+                }else{
+                    $(this.regions.searchbox).find("input").removeClass("mglass");
+                }
+                $(this.regions.optionbox).toggleClass("show");
+            },
+
+            cleanInput: function(){
+                if( $(this.regions.searchbox).find("input").val() != "" ){
+                    $(this.regions.searchbox).find("input").removeClass("mglass");
+                }else{
+                    $(this.regions.searchbox).find("input").addClass("mglass");
+                }
+                $(this.regions.optionbox).toggleClass("show");
+
             }
 
         });
