@@ -128,19 +128,21 @@ define([
             },
 
             toggleMglass: function(){
-                if( $(this.regions.searchbox).find("input").val() != "" ){
-                    // $(this.regions.searchbox).find("input").addClass("mglass");
+                var searchinput = $(this.regions.searchbox).find("input");
+                if( searchinput.val() != "" ){
+                    // searchinput.addClass("mglass");
                 }else{
-                    $(this.regions.searchbox).find("input").removeClass("mglass");
+                    searchinput.removeClass("mglass");
                 }
                 $(this.regions.optionbox).toggleClass("show");
             },
 
             cleanInput: function(){
-                if( $(this.regions.searchbox).find("input").val() != "" ){
-                    $(this.regions.searchbox).find("input").removeClass("mglass");
+                var searchinput = $(this.regions.searchbox).find("input");
+                if( searchinput.val() != "" ){
+                    searchinput.removeClass("mglass");
                 }else{
-                    $(this.regions.searchbox).find("input").addClass("mglass");
+                    searchinput.addClass("mglass");
                 }
                 $(this.regions.optionbox).toggleClass("show");
 
