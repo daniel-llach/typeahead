@@ -32,7 +32,7 @@ define([
             model: TpModule.OptionModel,
 
             /* campo por el que se ordena */
-            comparator: "content"
+            comparator: "name"
         });
 
         /* definicion de vista de item individuales */
@@ -80,7 +80,9 @@ define([
 
             events: {
                 'focusin .searchbox input': 'toggleMglass',
-                'focusout .searchbox input': 'cleanInput'
+                'keyup .searchbox input': 'keynav',
+                'click .optionbox ul li'   : 'enterOption'
+                // 'focusout .searchbox input': 'cleanInput'
             },
 
             /* lo que se ejecuta antes que se muestre la vista */
@@ -94,11 +96,16 @@ define([
 
                 /* crea la lista de opciones a mostrar en el typeahead */
                 var optionArray = [];
-                optionArray.push({id: 1, name: "opcion1", content: "contenido1"});
-                optionArray.push({id: 2, name: "opcion2", content: "contenido2"});
-                optionArray.push({id: 3, name: "opcion3", content: "contenido3"});
-                optionArray.push({id: 4, name: "opcion4", content: "contenido4"});
-                optionArray.push({id: 5, name: "opcion5", content: "contenido5"});
+                optionArray.push({id: 1, name: "gato", content: "gris"});
+                optionArray.push({id: 2, name: "perro", content: "blanco"});
+                optionArray.push({id: 3, name: "ardilla", content: "rojo"});
+                optionArray.push({id: 4, name: "mono", content: "cafe"});
+                optionArray.push({id: 5, name: "paloma", content: "amarillo"});
+                optionArray.push({id: 6, name: "conejo", content: "gris"});
+                optionArray.push({id: 7, name: "avestruz", content: "blanco"});
+                optionArray.push({id: 8, name: "gusano", content: "rojo"});
+                optionArray.push({id: 9, name: "pollo", content: "cafe"});
+                optionArray.push({id: 10, name: "rinoceronte", content: "amarillo"});
 
                 /* crea la coleccion usando la lista de opciones en la coleccion de opciones a mostrar */
                 var optionCollection = new TpModule.OptionCollection(optionArray);
@@ -129,12 +136,65 @@ define([
 
             toggleMglass: function(){
                 var searchinput = $(this.regions.searchbox).find("input");
+                var items = $(this.regions.optionbox).find("li");
                 if( searchinput.val() != "" ){
                     // searchinput.addClass("mglass");
                 }else{
                     searchinput.removeClass("mglass");
                 }
                 $(this.regions.optionbox).toggleClass("show");
+                items.removeClass("selected");
+            },
+
+            keynav: function(event){
+                var searchinput = $(this.regions.searchbox).find("input");
+                var itemUl = $(this.regions.optionbox).find("ul");
+                var items = $(this.regions.optionbox).find("li");
+                var totalItems = $(this.regions.optionbox).find("li").size();
+                var index = itemUl.find('.selected').index();
+                var selectItem = $(this.regions.optionbox).find(".selected").text();
+                var word = searchinput.val();
+
+                event.preventDefault();
+
+                if (event.keyCode == 40){
+                    // down
+                    items.removeClass("selected");
+                    if(index < 0){
+                        itemUl.find("li:first-child").addClass("selected");
+                    }else {
+                        itemUl.find("li").eq(index + 1).addClass("selected");
+                    }
+                    this.evaluateOptions(itemUl, items, totalItems, index);
+
+                }else if (event.keyCode == 38){
+                    // up
+                    items.removeClass("selected");
+                    if(index > totalItems){
+                        itemUl.find("li:last-child").addClass("selected");
+                    }else{
+                        itemUl.find("li").eq(index - 1).addClass("selected");
+                    }
+                }else if (event.keyCode == 13){
+                    searchinput.val(selectItem);
+                }else if (event.keyCode == 27){
+                    this.cleanInput();
+                    searchinput.blur();
+                }else{
+                    this.filter(searchinput, items, word);
+                }
+            },
+
+            enterOption: function(event){
+                event.stopPropagation();
+
+                var searchinput = $(this.regions.searchbox).find("input");
+                var selectedItem = event.target.innerText;
+                console.log(selectedItem);
+                searchinput.val(selectedItem);
+
+                this.cleanInput();
+
             },
 
             cleanInput: function(){
@@ -146,6 +206,29 @@ define([
                 }
                 $(this.regions.optionbox).toggleClass("show");
 
+            },
+
+            evaluateOptions: function(itemUl, items, totalItems, index){
+
+                if(index == -1){
+                    items.show();
+                }
+            },
+
+            filter: function(searchinput, items, word){
+                this.caseSensitive();
+
+                items.hide();
+                items.find("span:containsIN('" + word + "')").parent("li").show();
+            },
+
+            caseSensitive: function(){
+                // case sensitive
+                $.extend($.expr[":"], {
+                    "containsIN": function(elem, i, match, array) {
+                    return (elem.textContent || elem.innerText || "").toLowerCase().indexOf((match[3] || "").toLowerCase()) >= 0;
+                    }
+                });
             }
 
         });

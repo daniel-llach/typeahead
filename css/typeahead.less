@@ -68,6 +68,8 @@
         {
             padding: 0;
             margin: 0;
+            max-height: 200px;
+            overflow-y: auto;
 
             > li
             {
@@ -76,6 +78,9 @@
                 padding: 4px 9px;
                 box-sizing: border-box;
                 font-weight: 300;
+                cursor: default;
+
+
 
                 &:nth-child(odd) {
                     background: #EFF1F6;
@@ -86,6 +91,18 @@
                     background: #EAECF1;
                     border: 2px solid #EAECF1;
                 }
+
+                &:hover
+                {
+                    background: #7899AE;
+                    color: #fff;
+                }
+            }
+
+            > .selected
+            {
+                background: #7899AE !important;
+                color: #fff;
             }
 
         }
