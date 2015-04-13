@@ -55,7 +55,10 @@ define([
             /* indica itemview aplicado a cada modelo de la coleccion */
             childView: TpModule.OptionItemView,
 
-            initialize: function() { console.log("OptionItemView: initialize") },
+            initialize: function() {
+                console.log("OptionItemView: initialize");
+                this.listenTo(this.collection, "reset", this.render);
+             },
             onRender: function() { console.log("OptionItemView: onRender") },
             onShow: function() { console.log("OptionItemView: onShow") }
         });
@@ -79,7 +82,7 @@ define([
             },
 
             events: {
-                'focusin .searchbox input': 'toggleMglass',
+                // 'focusin .searchbox input': 'toggleMglass',
                 'keyup .searchbox input': 'keynav',
                 'click .optionbox ul li'   : 'enterOption'
                 // 'focusout .searchbox input': 'cleanInput'
@@ -108,10 +111,14 @@ define([
                 optionArray.push({id: 10, name: "rinoceronte", content: "amarillo"});
 
                 /* crea la coleccion usando la lista de opciones en la coleccion de opciones a mostrar */
-                var optionCollection = new TpModule.OptionCollection(optionArray);
+                TpModule.optionCollection = new TpModule.OptionCollection(optionArray);
+
+                /* crea array de trabajo */
+                TpModule.optionArrayPool = new TpModule.OptionCollection();
+                TpModule.optionArrayPool.reset(TpModule.optionCollection.toArray());
 
                 /* crea nueva instancia de vistas para la coleccion creada */
-                var optionCollectionView = new TpModule.OptionCollectionView({collection: optionCollection});
+                var optionCollectionView = new TpModule.OptionCollectionView({collection: TpModule.optionArrayPool});
 
                 /* muestra la coleccion en la region que corresponde (optionbox) */
                 this.optionbox.show(optionCollectionView);
@@ -134,20 +141,21 @@ define([
                 });
             },
 
-            toggleMglass: function(){
-                var searchinput = $(this.regions.searchbox).find("input");
-                var items = $(this.regions.optionbox).find("li");
-                if( searchinput.val() != "" ){
-                    // searchinput.addClass("mglass");
-                }else{
-                    searchinput.removeClass("mglass");
-                }
-                $(this.regions.optionbox).toggleClass("show");
-                items.removeClass("selected");
-            },
+            // toggleMglass: function(){
+            //     var searchinput = $(this.regions.searchbox).find("input");
+            //     var items = $(this.regions.optionbox).find("li");
+            //     if( searchinput.val() != "" ){
+            //         // searchinput.addClass("mglass");
+            //     }else{
+            //         searchinput.removeClass("mglass");
+            //     }
+            //     $(this.regions.optionbox).toggleClass("show");
+            //     items.removeClass("selected");
+            // },
 
             keynav: function(event){
                 var searchinput = $(this.regions.searchbox).find("input");
+                var optionbox = $(this.regions.optionbox);
                 var itemUl = $(this.regions.optionbox).find("ul");
                 var items = $(this.regions.optionbox).find("li");
                 var totalItems = $(this.regions.optionbox).find("li").size();
@@ -157,23 +165,63 @@ define([
 
                 event.preventDefault();
 
+                // // muestra optiones disponibles
+                // TpModule.optionArrayPool.reset(arreglo);
+                // optionbox.show();
+
                 if (event.keyCode == 40){
                     // down
+                    var arreglo = TpModule.optionCollection.filter(function(option){
+                        return option.get("name").indexOf(word) != -1;
+                    });
+
+                    console.log(index);
                     items.removeClass("selected");
                     if(index < 0){
+                        optionbox.show();
+                        TpModule.optionArrayPool.reset(arreglo);
                         itemUl.find("li:first-child").addClass("selected");
+                    }else if(index == totalItems-1){
+                        itemUl.find("li").eq(totalItems-1).addClass("selected");
                     }else {
                         itemUl.find("li").eq(index + 1).addClass("selected");
                     }
                     this.evaluateOptions(itemUl, items, totalItems, index);
+
+                    console.log(index);
+
+                    // scroll cada 5 item + alto ul
+                    if ( index == 0){
+
+                    }else{
+                        if( index % 5 === 0){
+                            // alert('ok');
+                            var alto = itemUl.height();
+                            itemUl.scrollTop(+alto);
+                        }
+
+                    }
 
                 }else if (event.keyCode == 38){
                     // up
                     items.removeClass("selected");
                     if(index > totalItems){
                         itemUl.find("li:last-child").addClass("selected");
+                    }else if(index == 0){
+                        itemUl.find("li:first-child").addClass("selected");
                     }else{
                         itemUl.find("li").eq(index - 1).addClass("selected");
+                    }
+
+                    // scroll cada 5 item - alto ul
+                    if ( index == 0){
+
+                    }else{
+                        if( index % 5 === 0){
+                            // alert('ok');
+                            var alto = itemUl.height();
+                            itemUl.scrollTop(-alto);
+                        }
                     }
                 }else if (event.keyCode == 13){
                     searchinput.val(selectItem);
@@ -181,7 +229,7 @@ define([
                     this.cleanInput();
                     searchinput.blur();
                 }else{
-                    this.filter(searchinput, items, word);
+                    this.filter(searchinput, optionbox, items, word);
                 }
             },
 
@@ -190,10 +238,11 @@ define([
 
                 var searchinput = $(this.regions.searchbox).find("input");
                 var selectedItem = event.target.innerText;
-                console.log(selectedItem);
                 searchinput.val(selectedItem);
 
+
                 this.cleanInput();
+
 
             },
 
@@ -215,11 +264,16 @@ define([
                 }
             },
 
-            filter: function(searchinput, items, word){
-                this.caseSensitive();
+            filter: function(searchinput, optionbox, items, word){
+                var arreglo = TpModule.optionCollection.filter(function(option){
+                    return option.get("name").indexOf(word) != -1;
+                });
 
-                items.hide();
-                items.find("span:containsIN('" + word + "')").parent("li").show();
+                TpModule.optionArrayPool.reset(arreglo);
+
+                // this.caseSensitive();
+
+                optionbox.show();
             },
 
             caseSensitive: function(){
