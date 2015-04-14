@@ -82,10 +82,9 @@ define([
             },
 
             events: {
-                // 'focusin .searchbox input': 'toggleMglass',
-                'keyup .searchbox input': 'keynav',
-                'click .optionbox ul li'   : 'enterOption'
-                // 'focusout .searchbox input': 'cleanInput'
+                "keyup .searchbox input" : "keynav",
+                "click .optionbox ul li" : "enterOption",
+                "keyup" : "escape"
             },
 
             /* lo que se ejecuta antes que se muestre la vista */
@@ -141,18 +140,6 @@ define([
                 });
             },
 
-            // toggleMglass: function(){
-            //     var searchinput = $(this.regions.searchbox).find("input");
-            //     var items = $(this.regions.optionbox).find("li");
-            //     if( searchinput.val() != "" ){
-            //         // searchinput.addClass("mglass");
-            //     }else{
-            //         searchinput.removeClass("mglass");
-            //     }
-            //     $(this.regions.optionbox).toggleClass("show");
-            //     items.removeClass("selected");
-            // },
-
             keynav: function(event){
                 var searchinput = $(this.regions.searchbox).find("input");
                 var optionbox = $(this.regions.optionbox);
@@ -163,19 +150,13 @@ define([
                 var selectItem = $(this.regions.optionbox).find(".selected").text();
                 var word = searchinput.val();
 
-                event.preventDefault();
-
-                // // muestra optiones disponibles
-                // TpModule.optionArrayPool.reset(arreglo);
-                // optionbox.show();
+                // event.preventDefault();
 
                 if (event.keyCode == 40){
                     // down
                     var arreglo = TpModule.optionCollection.filter(function(option){
                         return option.get("name").indexOf(word) != -1;
                     });
-
-                    console.log(index);
                     items.removeClass("selected");
                     if(index < 0){
                         optionbox.show();
@@ -188,18 +169,14 @@ define([
                     }
                     this.evaluateOptions(itemUl, items, totalItems, index);
 
-                    console.log(index);
-
                     // scroll cada 5 item + alto ul
                     if ( index == 0){
-
                     }else{
                         if( index % 5 === 0){
                             // alert('ok');
                             var alto = itemUl.height();
                             itemUl.scrollTop(+alto);
                         }
-
                     }
 
                 }else if (event.keyCode == 38){
@@ -215,7 +192,6 @@ define([
 
                     // scroll cada 5 item - alto ul
                     if ( index == 0){
-
                     }else{
                         if( index % 5 === 0){
                             // alert('ok');
@@ -224,26 +200,32 @@ define([
                         }
                     }
                 }else if (event.keyCode == 13){
+                    // enter
                     searchinput.val(selectItem);
-                }else if (event.keyCode == 27){
-                    this.cleanInput();
-                    searchinput.blur();
+                    optionbox.hide();
                 }else{
                     this.filter(searchinput, optionbox, items, word);
                 }
             },
 
+            escape: function(event){
+                var searchinput = $(this.regions.searchbox).find("input");
+                var optionbox = $(this.regions.optionbox);
+                if (event.keyCode == 27){
+                    // esc
+                    this.cleanInput();
+                    searchinput.blur();
+                    optionbox.hide();
+                }
+            },
+
             enterOption: function(event){
                 event.stopPropagation();
-
                 var searchinput = $(this.regions.searchbox).find("input");
                 var selectedItem = event.target.innerText;
                 searchinput.val(selectedItem);
 
-
                 this.cleanInput();
-
-
             },
 
             cleanInput: function(){
@@ -258,7 +240,6 @@ define([
             },
 
             evaluateOptions: function(itemUl, items, totalItems, index){
-
                 if(index == -1){
                     items.show();
                 }
@@ -271,18 +252,7 @@ define([
 
                 TpModule.optionArrayPool.reset(arreglo);
 
-                // this.caseSensitive();
-
                 optionbox.show();
-            },
-
-            caseSensitive: function(){
-                // case sensitive
-                $.extend($.expr[":"], {
-                    "containsIN": function(elem, i, match, array) {
-                    return (elem.textContent || elem.innerText || "").toLowerCase().indexOf((match[3] || "").toLowerCase()) >= 0;
-                    }
-                });
             }
 
         });
