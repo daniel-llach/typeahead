@@ -26,6 +26,7 @@ define([
             }
         });
 
+
         /* definicion de la coleccion de opciones */
         TpModule.OptionCollection = Backbone.Collection.extend({
             /* indica modelo de la collecion */
