@@ -121,6 +121,19 @@ define([
             onShow: function(){
                 console.log('TpAppLayoutView: onShow');
                 this.setDimentionSearchBox();
+
+                var self = this;
+                $("*").click(function(event){
+
+                    if ($(event.target).hasClass('search')){
+                        // clickea en input: no hace nada
+                    }else{
+                        if (event.currentTarget === event.originalEvent.target){
+                            self.cleanInput();
+                        }
+                    }
+
+                });
             },
 
             setDimentionSearchBox: function(){
