@@ -1,41 +1,42 @@
-/*global require*/
 "use strict";
 
-// Require.js allows us to configure shortcut alias
 require.config({
-    // The shim config allows us to configure dependencies for
-    // scripts that do not call define() to register a module
-    shim: {
-        underscore: {
-            exports: "_"
-        },
-        marionette:{
-            deps: [
-                "backbone"
-            ],
-            exports: "marionette"
-        },
-        backbone: {
-            deps: [
-                "underscore",
-                "jquery",
-            ],
-            exports: "Backbone"
-        }
-    },
-    paths: {
-        jquery: "../bower_components/jquery/dist/jquery",
-        underscore: "../bower_components/underscore/underscore",
-        backbone: "../bower_components/backbone/backbone",
-        marionette: '../bower_components/backbone.marionette/lib/backbone.marionette',
+    paths : {
+        backbone : "../bower_components/backbone/backbone",
+        underscore : "../bower_components/underscore/underscore",
+        jquery : "../bower_components/jquery/dist/jquery",
+        "backbone.marionette" : "../bower_components/backbone.marionette/lib/core/backbone.marionette",
+        "backbone.radio" : "../bower_components/backbone.radio/build/backbone.radio",
+        "backbone.babysitter" : "../bower_components/backbone.babysitter/lib/backbone.babysitter",
         text: "../bower_components/requirejs-text/text"
+    },
+    enforceDefine: true,
+    map: {
+        '*': {
+            'backbone.wreqr': 'backbone.radio'
+        }
     }
 });
 
-require([
-    "typeahead"
-], function (TpApp) {
+define([
+    "backbone.marionette",
+    "backbone.radio",
+    "radio.shim",
+    "app"
+], function (Marionette, Radio, Shim, App) {
 
-    TpApp.start();
+    var SomeRegion = Marionette.Region.extend();
 
+    var somediv = new SomeRegion({
+        el: "#somediv"
+    });
+
+    App.start({
+        containerHeight: somediv.$el.outerHeight()
+    });
+
+    var appChannel = Radio.channel("typeahead");
+    var appView = appChannel.request("get:typeahead:root");
+
+    somediv.show(appView);
 });
