@@ -26,7 +26,6 @@ define([
             }
         });
 
-
         /* definicion de la coleccion de opciones */
         TpModule.OptionCollection = Backbone.Collection.extend({
             /* indica modelo de la collecion */
@@ -41,12 +40,8 @@ define([
             tagName: "li",
 
             /* indica el template a utilizar */
-            template: _.template(OptionTemplate),
+            template: _.template(OptionTemplate)
 
-            /* indica el orden de llamadas de métodos */
-            initialize: function() { console.log("OptionItemView: initialize >> " + this.model.get("name")) },
-            onRender: function() { console.log("OptionItemView: onRender >> " + this.model.get("name")) },
-            onShow: function() { console.log("OptionItemView: onShow >> " + this.model.get("name")) }
         });
 
         /* definicion de colleccion de vistas */
@@ -83,19 +78,15 @@ define([
             },
 
             events: {
-                "keyup .searchbox input" : "keynav",
-                "click .optionbox ul li" : "enterOption",
-                "keyup" : "escape"
-            },
-
-            /* lo que se ejecuta antes que se muestre la vista */
-            initialize: function() {
-                console.log('TpAppLayoutView: initialize');
+                'focusin .searchbox input': 'toggleMglass',
+                'focusout .searchbox input': 'outMglass',
+                'keyup .searchbox input': 'keynav',
+                'click .optionbox ul li'   : 'enterOption'
+                // 'focusout .searchbox input': 'cleanInput'
             },
 
             /* lo que se ejecuta despues que la vista se renderiza (vistas anidadas aqui!) */
             onRender: function() {
-                console.log('TpAppLayoutView: onRender');
 
                 /* crea la lista de opciones a mostrar en el typeahead */
                 var optionArray = [];
@@ -109,8 +100,14 @@ define([
                 optionArray.push({id: 8, name: "gusano", content: "rojo"});
                 optionArray.push({id: 9, name: "pollo", content: "cafe"});
                 optionArray.push({id: 10, name: "rinoceronte", content: "amarillo"});
+                optionArray.push({id: 11, name: "polilla", content: "negra"});
+                optionArray.push({id: 12, name: "mantis", content: "verde"});
+                optionArray.push({id: 13, name: "koala", content: "blanco"});
+                optionArray.push({id: 14, name: "garza", content: "amarilla"});
+                optionArray.push({id: 15, name: "hormiga", content: "cafe"});
+                optionArray.push({id: 16, name: "pulga", content: "fuxia"});
 
-                /* crea la coleccion usando la lista de opciones en la coleccion de opciones a mostrar */
+                 /* crea la coleccion usando la lista de opciones en la coleccion de opciones a mostrar */
                 TpModule.optionCollection = new TpModule.OptionCollection(optionArray);
 
                 /* crea array de trabajo */
@@ -126,8 +123,21 @@ define([
 
             /* se ejecuta despues que se muestra la vista */
             onShow: function(){
-                console.log('TpAppLayoutView: onShow');
-                this.setDimentionSearchBox();
+                // this.setDimentionSearchBox();
+                this.setDimentionOptionBox();
+
+                var self = this;
+                $("*").click(function(event){
+
+                    if ($(event.target).hasClass('search')){
+                        // clickea en input: no hace nada
+                    }else{
+                        if (event.currentTarget === event.originalEvent.target){
+                            self.cleanInput();
+                        }
+                    }
+
+                });
             },
 
             setDimentionSearchBox: function(){
@@ -141,6 +151,41 @@ define([
                 });
             },
 
+            setDimentionOptionBox: function(){
+                var heightContainer = TpApp.container.$el.height();
+                var searchboxHeight = this.$el.find(".searchbox").height();
+                var optionboxHeight = heightContainer - searchboxHeight;
+                //
+                this.$el.find(".optionbox").css({ "top": searchboxHeight + "px" });
+                this.$el.find(".optionbox ul").height(optionboxHeight + "px");
+            },
+
+            toggleMglass: function(){
+                var searchinput = $(this.regions.searchbox).find("input");
+                var items = $(this.regions.optionbox).find("li");
+                if( searchinput.val() != "" ){
+                }else{
+                    searchinput.removeClass("mglass");
+                }
+                // $(this.regions.optionbox).toggleClass("show");
+                items.removeClass("selected");
+            },
+
+            outMglass: function(event){
+                var searchinput = $(this.regions.searchbox).find("input");
+                var optionbox = $(this.regions.optionbox);
+                if (optionbox.is(':visible')) {
+
+                } else {
+                    // $(this.regions.optionbox).toggleClass("show");
+                    if ( optionbox.length > 0){
+                        $(this.regions.optionbox).removeClass("show");
+                    }else{
+                        searchinput.addClass("mglass");
+                    }
+                }
+            },
+
             keynav: function(event){
                 var searchinput = $(this.regions.searchbox).find("input");
                 var optionbox = $(this.regions.optionbox);
@@ -150,6 +195,10 @@ define([
                 var index = itemUl.find('.selected').index();
                 var selectItem = $(this.regions.optionbox).find(".selected").text();
                 var word = searchinput.val();
+
+                // number of slide item in to scroll
+                var slideNumber = parseInt( ( optionbox.outerHeight() / items.outerHeight() ) - 1 );
+                console.log(slideNumber);
 
                 // event.preventDefault();
 
@@ -173,9 +222,9 @@ define([
                     // scroll cada 5 item + alto ul
                     if ( index == 0){
                     }else{
-                        if( index % 5 === 0){
+                        if( index % slideNumber === 0){
                             // alert('ok');
-                            var alto = itemUl.height();
+                            var alto = itemUl.height() - items.height();
                             itemUl.scrollTop(+alto);
                         }
                     }
@@ -194,39 +243,31 @@ define([
                     // scroll cada 5 item - alto ul
                     if ( index == 0){
                     }else{
-                        if( index % 5 === 0){
+                        if( index % slideNumber === 0){
                             // alert('ok');
-                            var alto = itemUl.height();
+                            var alto = itemUl.height() - items.height();
                             itemUl.scrollTop(-alto);
                         }
                     }
                 }else if (event.keyCode == 13){
                     // enter
                     searchinput.val(selectItem);
-                    optionbox.hide();
+                    // optionbox.hide();
                 }else{
                     this.filter(searchinput, optionbox, items, word);
                 }
             },
 
-            escape: function(event){
-                var searchinput = $(this.regions.searchbox).find("input");
-                var optionbox = $(this.regions.optionbox);
-                if (event.keyCode == 27){
-                    // esc
-                    this.cleanInput();
-                    searchinput.blur();
-                    optionbox.hide();
-                }
-            },
-
             enterOption: function(event){
                 event.stopPropagation();
+
                 var searchinput = $(this.regions.searchbox).find("input");
                 var selectedItem = event.target.innerText;
                 searchinput.val(selectedItem);
 
                 this.cleanInput();
+
+
             },
 
             cleanInput: function(){
@@ -236,11 +277,12 @@ define([
                 }else{
                     searchinput.addClass("mglass");
                 }
-                $(this.regions.optionbox).toggleClass("show");
+                // $(this.regions.optionbox).toggleClass("show");
 
             },
 
             evaluateOptions: function(itemUl, items, totalItems, index){
+
                 if(index == -1){
                     items.show();
                 }
@@ -253,7 +295,16 @@ define([
 
                 TpModule.optionArrayPool.reset(arreglo);
 
-                optionbox.show();
+                // optionbox.show();
+            },
+
+            caseSensitive: function(){
+                // case sensitive
+                $.extend($.expr[":"], {
+                    "containsIN": function(elem, i, match, array) {
+                    return (elem.textContent || elem.innerText || "").toLowerCase().indexOf((match[3] || "").toLowerCase()) >= 0;
+                    }
+                });
             }
 
         });

@@ -19,22 +19,8 @@
 
 }
 
-.border-radius(@radius: 10px)
-{
-  -webkit-border-radius: @radius;
-     -moz-border-radius: @radius;
-      -ms-border-radius: @radius;
-       -o-border-radius: @radius;
-          border-radius: @radius;
-}
-
 
 //////// STYLE ///////
-body
-{
-        background: #999;
-
-}
 
 .typeahead
 {
@@ -50,40 +36,40 @@ body
 
         > input
         {
+            text-align: left;
+            background-color: #fafbfe;
+            color: #7899af;
+            outline: none;
+            font-size: 14px;
             width: 100%;
-            text-align: center;
+            border: none;
+            padding: 9px 12px;
             box-sizing: border-box;
-            border: 2px solid white;
-            color: #286186;
-            box-shadow: 0 0 0 #fff;
-            background: #f8f8f8;
-            font-size: 11px;
-
-            .border-radius(4px);
 
         }
 
-        // > .mglass
-        // {
-        //     background-image: url(../img/mglass.svg);
-        //     background-size: 10px 10px;
-        //     background-position: center center;
-        //     background-repeat: no-repeat;
-        // }
+        > .mglass
+        {
+            background-image: url(../img/mglass.svg);
+            background-size: 10px 10px;
+            background-position: center center;
+            background-repeat: no-repeat;
+        }
     }
 
     > .optionbox
     {
-        display: none;
+        // display: none;
         width: 100%;
         position: absolute;
-        background: #F0F3F6;
+        background: #f0f3f6;
+        top: 35px;
 
         > ul
         {
             padding: 0;
             margin: 0;
-            max-height: 200px;
+            // max-height: 200px;
             overflow-y: auto;
 
             > li
@@ -94,7 +80,6 @@ body
                 box-sizing: border-box;
                 font-weight: 300;
                 cursor: default;
-                font-size: 12px;
 
 
 
@@ -127,10 +112,6 @@ body
 .show
 {
     display: block;
-}
-.hide
-{
-    display:none !important;
 }
 }
 
