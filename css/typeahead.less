@@ -98,6 +98,30 @@
                     background: #7899AE;
                     color: #fff;
                 }
+
+                > span
+                {
+
+
+                    > span
+                    {
+                        // margin-right: 4px;
+                        font-size: 12px;
+                        text-transform: lowercase;
+
+                        &:nth-child(1)
+                        {
+                            text-transform: capitalize;
+                            font-weight: 700;
+                            font-size: 15px;
+
+                            &::after
+                            {
+                                content: " : ";
+                            }
+                        }
+                    }
+                }
             }
 
             > .selected
