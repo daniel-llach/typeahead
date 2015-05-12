@@ -35,7 +35,9 @@ define([
     var app1 = new App("ty1");
 
     app1.start({
-        containerHeight: somediv.$el.outerHeight()
+        containerHeight: somediv.$el.outerHeight(),
+        separator: "__",
+        displayKeys: ["content", "name"]
     });
 
     var app1Channel = Radio.channel("ty1");
@@ -50,7 +52,9 @@ define([
     var app2 = new App("ty2");
 
     app2.start({
-        containerHeight: someotherdiv.$el.outerHeight()
+        containerHeight: someotherdiv.$el.outerHeight(),
+        separator: "__",
+        displayKeys: ["name", "content"]
     });
 
     var app2Channel = Radio.channel("ty2");
