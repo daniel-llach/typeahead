@@ -5,9 +5,9 @@ define([
     "text!templates/typeahead.html",
     "text!templates/optiontemplate.html"
 ], function (Marionette, Radio, Shim, TypeaHeadTemplate, OptionTemplate) {
-
+var TypeAheadConstructor = function(channelName){
 	var TypeAhead = new Marionette.Application();
-    TypeAhead.Channel = Radio.channel("typeahead");
+    TypeAhead.Channel = Radio.channel(channelName);
 
     TypeAhead.OptionModel = Backbone.Model.extend();
 
@@ -203,4 +203,6 @@ define([
     });
 
     return TypeAhead;
+};
+return TypeAheadConstructor;
 });

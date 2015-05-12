@@ -32,12 +32,31 @@ define([
         el: "#somediv"
     });
 
-    App.start({
+    var app1 = new App("ty1");
+
+    app1.start({
         containerHeight: somediv.$el.outerHeight()
     });
 
-    var appChannel = Radio.channel("typeahead");
-    var appView = appChannel.request("get:typeahead:root");
+    var app1Channel = Radio.channel("ty1");
+    var app1View = app1Channel.request("get:typeahead:root");
 
-    somediv.show(appView);
+    somediv.show(app1View);
+
+    var someotherdiv = new SomeRegion({
+        el: "#someotherdiv"
+    });
+
+    var app2 = new App("ty2");
+
+    app2.start({
+        containerHeight: someotherdiv.$el.outerHeight()
+    });
+
+    var app2Channel = Radio.channel("ty2");
+    var app2View = app2Channel.request("get:typeahead:root");
+
+    someotherdiv.show(app2View);
+
+
 });
