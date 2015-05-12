@@ -24,6 +24,7 @@ define([
     "radio.shim",
     "app"
 ], function (Marionette, Radio, Shim, App) {
+    window.Radio = Radio;
 
     var SomeRegion = Marionette.Region.extend();
 
