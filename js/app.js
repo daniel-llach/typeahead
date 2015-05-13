@@ -96,7 +96,7 @@ define([
                 this.updateSelected(args.model);
             },
             updateSelected: function(model){
-                this.collection.each(function(option){
+                TypeAhead.optionCollection.each(function(option){
                     if(option.cid === model.cid){
                         option.set({"selected": true});
                     }
