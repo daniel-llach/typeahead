@@ -28,6 +28,9 @@ define([
             initialize: function(){
                 this.listenTo(this.model, "change:selected", this.updateSelected);
             },
+            onRender: function(){
+                this.updateSelected();
+            },
             enterOption: function(event){
                 TypeAhead.Channel.trigger("option:click", {
                     option:this.model
@@ -107,8 +110,8 @@ define([
                 searchinput.val(selectedItem);
                 this.outMglass();
 
-                var index = this.collection.indexOf(model);
-                this.adjustScroll(index);
+                // var index = this.collection.indexOf(model);
+                this.adjustScroll();
 
                 TypeAhead.Channel.trigger("selected:model:change", {model: model});
             },
@@ -119,7 +122,7 @@ define([
                 }else{
                     searchinput.removeClass("mglass");
                 }
-                items.removeClass("selected");
+                // items.removeClass("selected");
                 searchinput.select();
 
             },
@@ -168,7 +171,7 @@ define([
                     this.updateSelected(prevOption);
                 }
             },
-            adjustScroll: function(index){
+            adjustScroll: function(){
                 var optionbox = this.$el.find(".optionbox");
                 var ulItem = optionbox.find("ul");
                 var item = optionbox.find("li.selected");
