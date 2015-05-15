@@ -59,16 +59,17 @@
 
     > .optionbox
     {
-        display: none;
+        // display: none;
         width: 100%;
         position: absolute;
-        background: #F0F3F6;
+        background: #f0f3f6;
+        top: 35px;
 
         > ul
         {
             padding: 0;
             margin: 0;
-            max-height: 200px;
+            // max-height: 200px;
             overflow-y: auto;
 
             > li
@@ -96,6 +97,30 @@
                 {
                     background: #7899AE;
                     color: #fff;
+                }
+
+                > span
+                {
+
+
+                    > span
+                    {
+                        // margin-right: 4px;
+                        font-size: 12px;
+                        text-transform: lowercase;
+
+                        &:nth-child(1)
+                        {
+                            text-transform: capitalize;
+                            font-weight: 700;
+                            font-size: 15px;
+
+                            &::after
+                            {
+                                content: " : ";
+                            }
+                        }
+                    }
                 }
             }
 
