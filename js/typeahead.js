@@ -2,9 +2,9 @@ define([
     "backbone.marionette",
     "backbone.radio",
     "radio.shim",
-    "text!templates/typeahead.html",
-    "text!templates/optiontemplate.html"
-], function (Marionette, Radio, Shim, TypeaHeadTemplate, OptionTemplate) {
+    "text!./../templates/typeahead.html",
+    "text!./../templates/optiontemplate.html"
+], function (Marionette, Radio, Shim, TypeAheadTemplate, OptionTemplate) {
 
     var TypeAheadConstructor = function(channelName){
 
@@ -54,10 +54,12 @@ define([
             className: "typeahead",
             childView: TypeAhead.OptionItemView,
             childViewContainer: "ul",
-            template: _.template(TypeaHeadTemplate),
+            template: _.template(TypeAheadTemplate),
             events: {
                 'focusin .searchbox input': 'toggleMglass',
                 'focusout .searchbox input': 'outMglass',
+                'focusin .searchbox input': 'toogleOptions',
+                'focusout .searchbox input': 'outOptions',
                 // 'click .optionbox ul li'   : 'enterOption'
                 'keyup .searchbox input': 'filterOptions'
             },
@@ -71,14 +73,44 @@ define([
                 };
             },
             onShow: function(){
-                this.setDimentionOptionBox();
+                this.setDimensionOptionBox();
+
+                // var self = this;
+
+                // click out optionbox when show
+                $("*").click(function(event){
+                    TypeAhead.Channel.trigger("option:close", { event: event });
+                });
             },
-            setDimentionOptionBox: function(){
-                var heightContainer = this.options.containerHeight;
-                var searchboxHeight = this.$el.find(".searchbox").height();
+            closeOption: function(event){
+                var inputSearch = this.$el.find(".searchbox input");
+
+                if ($(event.target).hasClass('search')){
+                    // clickea en input: no hace nada
+                    this.$el.find(".optionbox").show();
+                }else{
+                    if (event.currentTarget === event.originalEvent.target){
+                        this.$el.find(".optionbox").hide();
+
+                        if(inputSearch.val() == ''){
+                            inputSearch.addClass("mglass");
+                            this.$el.find(".searchbox input").blur();
+                        }
+                    }
+                }
+            },
+            setDimensionOptionBox: function(){
+                var parentHeight = this.$el.parent().parent().height();
+                var heightContainer = this.$el.parent().outerHeight();
+                var searchboxHeight = this.$el.find(".searchbox").outerHeight();
+                if(searchboxHeight < 1){
+                    searchboxHeight = 35;
+                }
                 var optionboxHeight = heightContainer - searchboxHeight;
+
+                this.$el.find(".optionbox").height(parentHeight + "px");
                 this.$el.find(".optionbox").css({ "top": searchboxHeight + "px" });
-                this.$el.find(".optionbox ul").height(optionboxHeight + "px");
+                // this.$el.find(".optionbox ul").height(optionboxHeight + "px");
             },
             modelCaption: function(model){
                 var cap = "";
@@ -135,6 +167,18 @@ define([
                     searchinput.removeClass("mglass");
                 }
             },
+            toogleOptions: function(){
+                this.$el.find(".optionbox").toggleClass("show");
+            },
+            outOptions: function(){
+                var searchinput = this.$el.find("input");
+                var optionbox = this.$el.find(".optionbox");;
+                if (searchinput.val() == '') {
+                    optionbox.addClass("show");
+                }else{
+                    optionbox.removeClass("show");
+                }
+            },
             filterOptions: function(){
                 var word = this.$el.find(".searchbox input").val();
                 var word = word.toLowerCase();
@@ -183,6 +227,13 @@ define([
                 }else if( top < optionbox.offset().top + item.outerHeight() * 2){
                     ulItem.animate({scrollTop:stepUp}, '500', 'swing', function(){});
                 }
+            },
+
+            clearFilter: function(){
+                var input = this.$el.find(".searchbox input");
+                input.val("");
+                this.filterOptions();
+                input.addClass("mglass");
             }
         });
 
@@ -196,12 +247,10 @@ define([
 
             TypeAhead.RootView = new TypeAhead.OptionCompositeView({
                 collection: TypeAhead.optionArrayPool,
-                containerHeight: options.containerHeight,
-                separator: options.separator,
                 displayKeys: options.displayKeys
             });
 
-            TypeAhead.Channel.reply("get:typeahead:root", function(){
+            TypeAhead.Channel.reply("get:root", function(){
                 return TypeAhead.RootView;
             });
 
@@ -209,12 +258,20 @@ define([
                 var option = args.option;
             });
 
-            TypeAhead.Channel.comply("option:next", function(){
+            TypeAhead.Channel.on("option:next", function(){
                 TypeAhead.RootView.selectNext();
             });
 
-            TypeAhead.Channel.comply("option:prev", function(){
+            TypeAhead.Channel.on("option:prev", function(){
                 TypeAhead.RootView.selectPrev();
+            });
+
+            TypeAhead.Channel.on("clear:filter", function(){
+                TypeAhead.RootView.clearFilter();
+            });
+
+            TypeAhead.Channel.on("option:close", function(args){
+                TypeAhead.RootView.closeOption.call(TypeAhead.RootView, args.event);
             });
         });
 
